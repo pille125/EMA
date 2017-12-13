@@ -12,12 +12,45 @@ import AudioKit
 import CoreMotion
 
 class ViewController: UIViewController {
+    
+    enum Status: String {
+        case Gyroskop = "Gyroskop"
+        case Accelerometer = "Accelerometer"
+        case Magnetometer = "Magnetometer"
+    }
+    
     let oscillator = AKOscillator()
     let motionManager = CMMotionManager()
     
     var timer: Timer!
     var x = 0.00;
+    var status = Status.Gyroskop
     
+    //Loop through the different sensors bei pressing the button
+    @IBAction func modeButton(_ sender: UIButton) {
+        switch sender.title(for: .normal)! {
+            case "Gyroskop":
+                print("gyro")
+                sender.setTitle("Accelerometer", for: .normal)
+                motionManager.stopGyroUpdates()
+                motionManager.startAccelerometerUpdates()
+                status = Status.Accelerometer
+            case "Accelerometer":
+                print("accelerometer")
+                sender.setTitle("Magnetometer", for: .normal)
+                motionManager.stopAccelerometerUpdates()
+                motionManager.startMagnetometerUpdates()
+                status = Status.Magnetometer
+            case "Magnetometer":
+                print("Magnetometer")
+                sender.setTitle("Gyroskop", for: .normal)
+                motionManager.stopMagnetometerUpdates()
+                motionManager.startGyroUpdates()
+                status = Status.Gyroskop
+            default:
+                print("Unknown")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,10 +60,8 @@ class ViewController: UIViewController {
         oscillator.start()
         oscillator.rampTime = 0.2
         
-        motionManager.startAccelerometerUpdates()
+        //motionManager.startAccelerometerUpdates()
         motionManager.startGyroUpdates()
-        motionManager.startMagnetometerUpdates()
-        update()
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         
@@ -56,25 +87,38 @@ class ViewController: UIViewController {
     
     
     @objc func update() {
-        if let accelerometerData = motionManager.accelerometerData {
-            print("AccelorometerData: \(accelerometerData)")
-            x = accelerometerData.acceleration.x
-            if (x < 0) {
-                x = x * -1
-                print(x*1000)
+        switch status {
+        case Status.Accelerometer:
+            if let accelerometerData = motionManager.accelerometerData {
+                print("AccelorometerData: \(accelerometerData)")
+                x = accelerometerData.acceleration.x
+                if (x < 0) {
+                    x = x * -1
+                    print(x*1000)
+                }
+                changeSoundFrequency(frequency: x*1000)//accelerometerData.acceleration.x * 10
             }
-            changeSoundFrequency(frequency: x*1000)//accelerometerData.acceleration.x * 10
-            
-        }
-        if let gyroData = motionManager.gyroData {
-            //print("Gyrodata: \(gyroData)")
-        }
-        if let magnetometerData = motionManager.magnetometerData {
-            //print("MagnetoData: \(magnetometerData)")
+        case Status.Gyroskop:
+            if let gyroData = motionManager.gyroData {
+                print("Gyrodata: \(gyroData)")
+                x = gyroData.rotationRate.x
+                if (x < 0) {
+                    x = x * -1
+                    print(x*100)
+                }
+                changeSoundFrequency(frequency: x*100)
+            }
+        case Status.Magnetometer:
+            if let magnetometerData = motionManager.magnetometerData {
+                print("MagnetoData: \(magnetometerData)")
+                x = magnetometerData.magneticField.x
+                if (x < 0) {
+                    x = x * -1
+                    print(x*10)
+                }
+                changeSoundFrequency(frequency: x*10)
+            }
+
         }
     }
-    
-
-
 }
-
