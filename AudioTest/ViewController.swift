@@ -9,6 +9,7 @@
 import UIKit
 
 import AudioKit
+import AudioKitUI
 import CoreMotion
 
 extension CGFloat {
@@ -35,7 +36,7 @@ class ViewController: UIViewController {
     let oscillator = AKOscillator()
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
-    let maxAmplitude = 1.0
+    let maxAmplitude = 10.0
     
     var timer: Timer!
     var valX = 0.00
@@ -44,6 +45,9 @@ class ViewController: UIViewController {
     var maxValY = 0.00
     
     var status = Status.Gyroskop
+    
+    @IBOutlet weak var audioPlot: UIView!
+    
     
     //Loop through the different sensors bei pressing the button
     @IBAction func modeButton(_ sender: UIButton) {
@@ -87,10 +91,20 @@ class ViewController: UIViewController {
         
         //motionManager.startAccelerometerUpdates()
         motionManager.startGyroUpdates()
-
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+        setupPlot()
         
+    }
+    
+    func setupPlot() {
+        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 440, height: 300))
+        plot.plotType = .rolling
+        //plot.shouldFill = true
+        //plot.shouldMirror = true
+        plot.shouldCenterYAxis = true
+        plot.color = UIColor.blue
+        audioPlot.addSubview(plot)
     }
 
     override func didReceiveMemoryWarning() {
@@ -150,7 +164,7 @@ class ViewController: UIViewController {
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: f)
                 
-                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 20.0...CGFloat(maxAmplitude))
+                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(f)")
                 changeSoundAmplitude(amplitude: a)
             }
@@ -169,8 +183,6 @@ class ViewController: UIViewController {
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: valX*10)
             }
-
         }
     }
-    
 }
