@@ -37,10 +37,14 @@ class ViewController: UIViewController {
     let oscillator = AKOscillator()
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
+    let maxAmplitude = 1.0
     
     var timer: Timer!
-    var val = 0.00
-    var maxVal = 0.00
+    var valX = 0.00
+    var valY = 0.00
+    var maxValX = 0.00
+    var maxValY = 0.00
+    
     var status = Status.Gyroskop
     
     var delay: AKVariableDelay!
@@ -60,21 +64,24 @@ class ViewController: UIViewController {
                 motionManager.stopGyroUpdates()
                 motionManager.startAccelerometerUpdates()
                 status = Status.Accelerometer
-                maxVal = 0.00
+                maxValX = 0.00
+                maxValY = 0.00
             case "Accelerometer":
                 print("accelerometer")
                 sender.setTitle("Magnetometer", for: .normal)
                 motionManager.stopAccelerometerUpdates()
                 motionManager.startMagnetometerUpdates()
                 status = Status.Magnetometer
-                maxVal = 0.00
+                maxValX = 0.00
+                maxValY = 0.00
             case "Magnetometer":
                 print("Magnetometer")
                 sender.setTitle("Gyroskop", for: .normal)
                 motionManager.stopMagnetometerUpdates()
                 motionManager.startGyroUpdates()
                 status = Status.Gyroskop
-                maxVal = 0.00
+                maxValX = 0.00
+                maxValY = 0.00
             default:
                 print("Unknown")
         }
@@ -122,7 +129,9 @@ class ViewController: UIViewController {
     }
     
     func changeSoundAmplitude(amplitude: Double) {
-        oscillator.amplitude = amplitude
+        if (amplitude < maxAmplitude) {
+            oscillator.amplitude = amplitude
+        }
     }
     
     @objc
@@ -131,47 +140,55 @@ class ViewController: UIViewController {
         case Status.Accelerometer:
             if let accelerometerData = motionManager.accelerometerData {
                 print("AccelorometerData: \(accelerometerData)")
-                val = accelerometerData.acceleration.x + accelerometerData.acceleration.y + accelerometerData.acceleration.z
-                if (val < 0) {
-                    val = val * -1
+                valX = accelerometerData.acceleration.x
+                valY = accelerometerData.acceleration.y
+                
+                if (valX < 0) {
+                    valX = valX * -1
                 }
-                if (maxVal < val) {
-                    maxVal = val
+                if (maxValX < valX) {
+                    maxValX = valX
                 }
-                print("This is the Max for accelerometer: \(maxVal)")
-                let f = Double(val).map(from: 0.0...CGFloat(maxVal), to: 20.0...CGFloat(maxFrequency))
+                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                changeSoundFrequency(frequency: f)//accelerometerData.acceleration.x * 10
+                changeSoundFrequency(frequency: f)
+                
+                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
+                print("mapped Amplitude: \(a)")
+                changeSoundAmplitude(amplitude: a)
             }
         case Status.Gyroskop:
             if let gyroData = motionManager.gyroData {
                 print("Gyrodata: \(gyroData)")
-                val = gyroData.rotationRate.x + gyroData.rotationRate.y + gyroData.rotationRate.z
-                if (val < 0) {
-                    val = val * -1
+                valX = gyroData.rotationRate.x
+                if (valX < 0) {
+                    valX = valX * -1
                 }
-                if (maxVal < val) {
-                    maxVal = val
+                if (maxValX < valX) {
+                    maxValX = valX
                 }
-                print("This is the Max for Gyroskop: \(maxVal)")
-                let f = Double(val).map(from: 0.0...CGFloat(maxVal), to: 20.0...CGFloat(maxFrequency))
+                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: f)
+                
+                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 20.0...CGFloat(maxAmplitude))
+                print("mapped Amplitude: \(f)")
+                changeSoundAmplitude(amplitude: a)
             }
         case Status.Magnetometer:
             if let magnetometerData = motionManager.magnetometerData {
                 print("MagnetoData: \(magnetometerData)")
-                val = magnetometerData.magneticField.x + magnetometerData.magneticField.y + magnetometerData.magneticField.z
-                if (val < 0) {
-                    val = val * -1
+                valX = magnetometerData.magneticField.x
+                
+                if (valX < 0) {
+                    valX = valX * -1
                 }
-                if (maxVal < val) {
-                    maxVal = val
+                if (maxValX < valX) {
+                    maxValX = valX
                 }
-                print("This is the Max for Magnetormeter: \(maxVal)")
-                let f = Double(val).map(from: 0.0...CGFloat(maxVal), to: 20.0...CGFloat(maxFrequency))
+                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                changeSoundFrequency(frequency: val*10)
+                changeSoundFrequency(frequency: valX*10)
             }
 
         }
