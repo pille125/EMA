@@ -10,6 +10,8 @@ import UIKit
 
 import AudioKit
 import CoreMotion
+import AudioKitUI
+
 
 extension CGFloat {
     func map(from: ClosedRange<CGFloat>, to: ClosedRange<CGFloat>) -> CGFloat {
@@ -40,6 +42,14 @@ class ViewController: UIViewController {
     var val = 0.00
     var maxVal = 0.00
     var status = Status.Gyroskop
+    
+    var delay: AKVariableDelay!
+    var delayMixer: AKDryWetMixer!
+    var reverb: AKCostelloReverb!
+    var reverbMixer: AKDryWetMixer!
+    var booster: AKBooster!
+    
+    let input = AKStereoInput()
     
     //Loop through the different sensors bei pressing the button
     @IBAction func modeButton(_ sender: UIButton) {
@@ -84,6 +94,17 @@ class ViewController: UIViewController {
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         
+        delay = AKVariableDelay(input)
+        delay.rampTime = 0.5 // Allows for some cool effects
+        delayMixer = AKDryWetMixer(input, delay)
+        
+        reverb = AKCostelloReverb(delayMixer)
+        reverbMixer = AKDryWetMixer(delayMixer, reverb)
+        
+        booster = AKBooster(reverbMixer)
+        
+        AudioKit.output = booster
+        setupUI()
     }
 
     override func didReceiveMemoryWarning() {
@@ -154,6 +175,67 @@ class ViewController: UIViewController {
             }
 
         }
+    }
+    func setupUI() {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .fillEqually
+        stackView.alignment = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 5
+        
+        stackView.addArrangedSubview(AKSlider(
+            property: "Delay Time",
+            value: self.delay.time,
+            format: "%0.2f s") { sliderValue in
+                self.delay.time = sliderValue
+        })
+        
+        stackView.addArrangedSubview(AKSlider(
+            property: "Delay Feedback",
+            value: self.delay.feedback,
+            range: 0 ... 0.99,
+            format: "%0.2f") { sliderValue in
+                self.delay.feedback = sliderValue
+        })
+        
+        stackView.addArrangedSubview(AKSlider(
+            property: "Delay Mix",
+            value: self.delayMixer.balance,
+            format: "%0.2f") { sliderValue in
+                self.delayMixer.balance = sliderValue
+        })
+        /*
+        stackView.addArrangedSubview(AKSlider(
+            property: "Reverb Feedback",
+            value: self.reverb.feedback,
+            range: 0 ... 0.99,
+            format: "%0.2f") { sliderValue in
+                self.reverb.feedback = sliderValue
+        })
+        
+        stackView.addArrangedSubview(AKSlider(
+            property: "Reverb Mix",
+            value: self.reverbMixer.balance,
+            format: "%0.2f") { sliderValue in
+                self.reverbMixer.balance = sliderValue
+        })
+        
+        stackView.addArrangedSubview(AKSlider(
+            property: "Output Volume",
+            value: self.booster.gain,
+            range: 0 ... 2,
+            format: "%0.2f") { sliderValue in
+                self.booster.gain = sliderValue
+        })
+        */
+        view.addSubview(stackView)
+        
+        stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.9).isActive = true
+        stackView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.4).isActive = true
+        
+        stackView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        stackView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
     }
     
 }
