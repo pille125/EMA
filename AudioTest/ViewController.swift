@@ -11,6 +11,8 @@ import UIKit
 import AudioKit
 import AudioKitUI
 import CoreMotion
+import AudioKitUI
+
 
 extension CGFloat {
     func map(from: ClosedRange<CGFloat>, to: ClosedRange<CGFloat>) -> CGFloat {
@@ -95,6 +97,17 @@ class ViewController: UIViewController {
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         setupPlot()
         
+        delay = AKVariableDelay(input)
+        delay.rampTime = 0.5 // Allows for some cool effects
+        delayMixer = AKDryWetMixer(input, delay)
+        
+        reverb = AKCostelloReverb(delayMixer)
+        reverbMixer = AKDryWetMixer(delayMixer, reverb)
+        
+        booster = AKBooster(reverbMixer)
+        
+        AudioKit.output = booster
+        setupUI()
     }
     
     func setupPlot() {
