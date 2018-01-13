@@ -38,7 +38,7 @@ class ViewController: UIViewController {
     let oscillator = AKOscillator()
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
-    let maxAmplitude = 10.0
+    let maxAmplitude = 1.0
     var toneData = [ToneData]()
     var record:Bool = false
     
@@ -59,9 +59,11 @@ class ViewController: UIViewController {
             record = true
             toneData.removeAll()
             sender.setTitle("Stop Record", for: .normal)
+            print("started recording")
         case "Stop Record":
             record = false
             sender.setTitle("Record", for: .normal)
+            print("Stopped recording, record time: \(toneData.count * 0.5) seconds")
         default:
             print("Unknown")
         }
@@ -78,6 +80,7 @@ class ViewController: UIViewController {
         
         case "Stop":
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+            sender.setTitle("Play", for: .normal)
         default:
             print("unknown")
         }
@@ -148,7 +151,6 @@ class ViewController: UIViewController {
     func changeSoundFrequency(frequency: Double) {
         if (frequency < maxFrequency) {
             oscillator.frequency = frequency
-            print(frequency)
         }else {
             print("Frequency to High")
         }
@@ -181,7 +183,7 @@ class ViewController: UIViewController {
         switch status {
         case Status.Accelerometer:
             if let accelerometerData = motionManager.accelerometerData {
-                print("AccelorometerData: \(accelerometerData)")
+                //print("AccelorometerData: \(accelerometerData)")
                 valX = accelerometerData.acceleration.x
                 valY = accelerometerData.acceleration.y
                 
@@ -190,6 +192,12 @@ class ViewController: UIViewController {
                 }
                 if (maxValX < valX) {
                     maxValX = valX
+                }
+                if (valY < 0) {
+                    valY = valY * -1
+                }
+                if (maxValY < valY) {
+                    maxValY = valY
                 }
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
@@ -206,7 +214,7 @@ class ViewController: UIViewController {
             }
         case Status.Gyroskop:
             if let gyroData = motionManager.gyroData {
-                print("Gyrodata: \(gyroData)")
+                //print("Gyrodata: \(gyroData)")
                 valX = gyroData.rotationRate.x
                 valY = gyroData.rotationRate.y
                 
@@ -216,12 +224,18 @@ class ViewController: UIViewController {
                 if (maxValX < valX) {
                     maxValX = valX
                 }
+                if (valY < 0) {
+                    valY = valY * -1
+                }
+                if (maxValY < valY) {
+                    maxValY = valY
+                }
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: f)
                 
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
-                print("mapped Amplitude: \(f)")
+                print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
                 if record == true {
@@ -230,7 +244,7 @@ class ViewController: UIViewController {
             }
         case Status.Magnetometer:
             if let magnetometerData = motionManager.magnetometerData {
-                print("MagnetoData: \(magnetometerData)")
+                //print("MagnetoData: \(magnetometerData)")
                 valX = magnetometerData.magneticField.x
                 valY = magnetometerData.magneticField.y
                 
@@ -240,12 +254,18 @@ class ViewController: UIViewController {
                 if (maxValX < valX) {
                     maxValX = valX
                 }
+                if (valY < 0) {
+                    valY = valY * -1
+                }
+                if (maxValY < valY) {
+                    maxValY = valY
+                }
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: valX*10)
                 
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
-                print("mapped Amplitude: \(f)")
+                print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
                 if record == true {
