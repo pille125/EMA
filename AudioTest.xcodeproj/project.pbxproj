@@ -20,6 +20,7 @@
 		068101361FB493A2009343D2 /* AudioKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 068101311FB49396009343D2 /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		06DF91F42008A733003656B9 /* AudioKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06DF91F32008A732003656B9 /* AudioKitUI.framework */; };
 		06DF91F52008A733003656B9 /* AudioKitUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06DF91F32008A732003656B9 /* AudioKitUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		06DF91F7200A6BA5003656B9 /* ToneData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DF91F6200A6BA5003656B9 /* ToneData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		062B37531F988FB900A47124 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		068101311FB49396009343D2 /* AudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioKit.framework; sourceTree = "<group>"; };
 		06DF91F32008A732003656B9 /* AudioKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AudioKitUI.framework; sourceTree = "<group>"; };
+		06DF91F6200A6BA5003656B9 /* ToneData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,10 +127,10 @@
 		062B37301F988FB900A47124 /* AudioTest */ = {
 			isa = PBXGroup;
 			children = (
-				ED78AF2620065F69003165D0 /* AudioKitUI.framework */,
 				068101311FB49396009343D2 /* AudioKit.framework */,
 				062B37311F988FB900A47124 /* AppDelegate.swift */,
 				062B37331F988FB900A47124 /* ViewController.swift */,
+				06DF91F6200A6BA5003656B9 /* ToneData.swift */,
 				062B37351F988FB900A47124 /* Main.storyboard */,
 				062B37381F988FB900A47124 /* Assets.xcassets */,
 				062B373A1F988FB900A47124 /* LaunchScreen.storyboard */,
@@ -224,7 +226,7 @@
 				TargetAttributes = {
 					062B372D1F988FB900A47124 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = 5EPUA7XLUX;
+						DevelopmentTeam = PQAK43WUWC;
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
@@ -296,6 +298,7 @@
 			files = (
 				062B37341F988FB900A47124 /* ViewController.swift in Sources */,
 				062B37321F988FB900A47124 /* AppDelegate.swift in Sources */,
+				06DF91F7200A6BA5003656B9 /* ToneData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,7 +464,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 5EPUA7XLUX;
+				DEVELOPMENT_TEAM = PQAK43WUWC;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -470,7 +473,7 @@
 				INFOPLIST_FILE = AudioTest/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = p.AudioTest1;
+				PRODUCT_BUNDLE_IDENTIFIER = p.AudioSine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
@@ -481,7 +484,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 5EPUA7XLUX;
+				DEVELOPMENT_TEAM = PQAK43WUWC;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -490,7 +493,7 @@
 				INFOPLIST_FILE = AudioTest/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = p.AudioTest1;
+				PRODUCT_BUNDLE_IDENTIFIER = p.AudioSine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;

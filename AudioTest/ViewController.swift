@@ -39,6 +39,9 @@ class ViewController: UIViewController {
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
     let maxAmplitude = 10.0
+    var toneData = [ToneData]()
+    var record:Bool = false
+    
     
     var timer: Timer!
     var valX = 0.00
@@ -50,6 +53,35 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var audioPlot: UIView!
     
+    @IBAction func recordButton(_ sender: UIButton) {
+        switch sender.title(for: .normal)! {
+        case "Record":
+            record = true
+            toneData.removeAll()
+            sender.setTitle("Stop Record", for: .normal)
+        case "Stop Record":
+            record = false
+            sender.setTitle("Record", for: .normal)
+        default:
+            print("Unknown")
+        }
+    }
+    
+    @IBAction func playButton(_ sender: UIButton) {
+        switch sender.title(for: .normal)! {
+        case "Play":
+            if record == false && toneData.count > 0 {
+                timer.invalidate()
+                playRecord()
+                sender.setTitle("Stop", for: .normal)
+            }
+        
+        case "Stop":
+            timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+        default:
+            print("unknown")
+        }
+    }
     
     //Loop through the different sensors bei pressing the button
     @IBAction func modeButton(_ sender: UIButton) {
@@ -96,18 +128,6 @@ class ViewController: UIViewController {
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         setupPlot()
-        
-        delay = AKVariableDelay(input)
-        delay.rampTime = 0.5 // Allows for some cool effects
-        delayMixer = AKDryWetMixer(input, delay)
-        
-        reverb = AKCostelloReverb(delayMixer)
-        reverbMixer = AKDryWetMixer(delayMixer, reverb)
-        
-        booster = AKBooster(reverbMixer)
-        
-        AudioKit.output = booster
-        setupUI()
     }
     
     func setupPlot() {
@@ -140,6 +160,22 @@ class ViewController: UIViewController {
         }
     }
     
+    func changeSoundEffect(Effect: Double) {
+        
+    }
+
+    func playRecord() {
+        var time = 0.0
+        for tone in toneData {
+            let when = DispatchTime.now() + time
+            time += 0.5
+            DispatchQueue.main.asyncAfter(deadline: when) {
+                self.changeSoundFrequency(frequency: tone.tone.x)
+                self.changeSoundAmplitude(amplitude: tone.tone.y)
+            }
+        }
+    }
+    
     @objc
     func update() {
         switch status {
@@ -162,11 +198,18 @@ class ViewController: UIViewController {
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
+                
+                if record == true {
+                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                }
+                
             }
         case Status.Gyroskop:
             if let gyroData = motionManager.gyroData {
                 print("Gyrodata: \(gyroData)")
                 valX = gyroData.rotationRate.x
+                valY = gyroData.rotationRate.y
+                
                 if (valX < 0) {
                     valX = valX * -1
                 }
@@ -180,11 +223,16 @@ class ViewController: UIViewController {
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(f)")
                 changeSoundAmplitude(amplitude: a)
+                
+                if record == true {
+                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                }
             }
         case Status.Magnetometer:
             if let magnetometerData = motionManager.magnetometerData {
                 print("MagnetoData: \(magnetometerData)")
                 valX = magnetometerData.magneticField.x
+                valY = magnetometerData.magneticField.y
                 
                 if (valX < 0) {
                     valX = valX * -1
@@ -195,6 +243,14 @@ class ViewController: UIViewController {
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: valX*10)
+                
+                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
+                print("mapped Amplitude: \(f)")
+                changeSoundAmplitude(amplitude: a)
+                
+                if record == true {
+                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                }
             }
         }
     }
