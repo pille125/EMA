@@ -39,9 +39,9 @@ class ViewController: UIViewController {
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
     let maxAmplitude = 1.0
+    let maxRampTime = 5.0
     var toneData = [ToneData]()
     var record:Bool = false
-    
     
     var timer: Timer!
     var valX = 0.00
@@ -134,7 +134,7 @@ class ViewController: UIViewController {
     }
     
     func setupPlot() {
-        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 440, height: 300))
+        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 280, height: 200))
         plot.plotType = .rolling
         //plot.shouldFill = true
         //plot.shouldMirror = true
@@ -142,14 +142,39 @@ class ViewController: UIViewController {
         plot.color = UIColor.blue
         audioPlot.addSubview(plot)
     }
-
+    
+    
+    @IBOutlet weak var amplitudeLabel: UILabel!
+    @IBOutlet weak var amplitudeSlider: UISlider!
+    @IBAction func amplitudeValueChange(_ sender: UISlider) {
+        let value = Double(sender.value)
+        amplitudeLabel.text = "\(value)"
+        changeSoundAmplitude(amplitude: value)
+    }
+    
+    @IBOutlet weak var frequencyLabel: UILabel!
+    @IBOutlet weak var frequencySlider: UISlider!
+    @IBAction func frequnecyValueChange(_ sender: UISlider) {
+        let value = Double(sender.value)
+        frequencyLabel.text = "\(value)"
+        changeSoundFrequency(frequency: value)
+    }
+    
+    @IBOutlet weak var rampTimeLabel: UILabel!
+    @IBOutlet weak var rampTimeSlider: UISlider!
+    @IBAction func rampTimeValueChange(_ sender: UISlider) {
+        let value = Double(sender.value)
+        rampTimeLabel.text = "\(value)"
+        changeSoundRampTime(rampTime: value)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
     func changeSoundFrequency(frequency: Double) {
-        if (frequency < maxFrequency) {
+        if (frequency <= maxFrequency) {
             oscillator.frequency = frequency
         }else {
             print("Frequency to High")
@@ -157,13 +182,20 @@ class ViewController: UIViewController {
     }
     
     func changeSoundAmplitude(amplitude: Double) {
-        if (amplitude < maxAmplitude) {
+        if (amplitude <= maxAmplitude) {
             oscillator.amplitude = amplitude
+        }else {
+            print("Amplitude to High")
         }
+        
     }
     
-    func changeSoundEffect(Effect: Double) {
-        
+    func changeSoundRampTime(rampTime: Double) {
+        if (rampTime <= maxRampTime) {
+            oscillator.rampTime = rampTime
+        }else {
+            print("Ramp Time to High")
+        }
     }
 
     func playRecord() {
@@ -237,6 +269,8 @@ class ViewController: UIViewController {
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
+                
+                oscillator.play()
                 
                 if record == true {
                     toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))

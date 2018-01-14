@@ -226,7 +226,7 @@
 				TargetAttributes = {
 					062B372D1F988FB900A47124 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = PQAK43WUWC;
+						DevelopmentTeam = 5EPUA7XLUX;
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
@@ -464,16 +464,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = PQAK43WUWC;
+				DEVELOPMENT_TEAM = 5EPUA7XLUX;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/AudioTest",
 				);
 				INFOPLIST_FILE = AudioTest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = p.AudioSine;
+				PRODUCT_BUNDLE_IDENTIFIER = "p.AudioSine-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
@@ -484,16 +484,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = PQAK43WUWC;
+				DEVELOPMENT_TEAM = 5EPUA7XLUX;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/AudioTest",
 				);
 				INFOPLIST_FILE = AudioTest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = p.AudioSine;
+				PRODUCT_BUNDLE_IDENTIFIER = "p.AudioSine-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
