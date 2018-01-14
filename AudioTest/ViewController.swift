@@ -35,7 +35,14 @@ class ViewController: UIViewController {
         case Magnetometer = "Magnetometer"
     }
     
-    let oscillator = AKOscillator()
+    var oscillator = AKOscillator()
+    //let oscillator = AKFMOscillator()
+    
+    let triangle = AKTable(.triangle, count: 256)
+    let square = AKTable(.square, count: 256)
+    let sawtooth = AKTable(.sawtooth, count: 256)
+    let sine = AKTable(.sine, count: 256)
+    
     let motionManager = CMMotionManager()
     let maxFrequency = 2000.0
     let maxAmplitude = 1.0
@@ -52,6 +59,12 @@ class ViewController: UIViewController {
     var status = Status.Gyroskop
     
     @IBOutlet weak var audioPlot: UIView!
+    @IBOutlet weak var amplitudeLabel: UILabel!
+    @IBOutlet weak var amplitudeSlider: UISlider!
+    @IBOutlet weak var frequencyLabel: UILabel!
+    @IBOutlet weak var frequencySlider: UISlider!
+    @IBOutlet weak var rampTimeLabel: UILabel!
+    @IBOutlet weak var rampTimeSlider: UISlider!
     
     @IBAction func recordButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
@@ -121,6 +134,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        oscillator = AKOscillator(waveform: square)
         AudioKit.output = oscillator
         AudioKit.start()
         oscillator.start()
@@ -131,6 +145,8 @@ class ViewController: UIViewController {
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         setupPlot()
+        
+        
     }
     
     func setupPlot() {
@@ -143,29 +159,26 @@ class ViewController: UIViewController {
         audioPlot.addSubview(plot)
     }
     
-    
-    @IBOutlet weak var amplitudeLabel: UILabel!
-    @IBOutlet weak var amplitudeSlider: UISlider!
+
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         amplitudeLabel.text = "\(value)"
         changeSoundAmplitude(amplitude: value)
     }
     
-    @IBOutlet weak var frequencyLabel: UILabel!
-    @IBOutlet weak var frequencySlider: UISlider!
+   
     @IBAction func frequnecyValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         frequencyLabel.text = "\(value)"
         changeSoundFrequency(frequency: value)
     }
     
-    @IBOutlet weak var rampTimeLabel: UILabel!
-    @IBOutlet weak var rampTimeSlider: UISlider!
+  
     @IBAction func rampTimeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         rampTimeLabel.text = "\(value)"
         changeSoundRampTime(rampTime: value)
+        //oscillator.modulationIndex = value
     }
     
     override func didReceiveMemoryWarning() {
@@ -176,6 +189,7 @@ class ViewController: UIViewController {
     func changeSoundFrequency(frequency: Double) {
         if (frequency <= maxFrequency) {
             oscillator.frequency = frequency
+            //oscillator.baseFrequency = frequency
         }else {
             print("Frequency to High")
         }
@@ -183,7 +197,7 @@ class ViewController: UIViewController {
     
     func changeSoundAmplitude(amplitude: Double) {
         if (amplitude <= maxAmplitude) {
-            oscillator.amplitude = amplitude
+            //oscillator.amplitude = amplitude
         }else {
             print("Amplitude to High")
         }
@@ -269,8 +283,6 @@ class ViewController: UIViewController {
                 let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
-                
-                oscillator.play()
                 
                 if record == true {
                     toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
