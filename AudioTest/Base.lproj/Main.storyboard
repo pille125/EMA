@@ -43,7 +43,7 @@
                                     <action selector="recordButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JKg-iL-qXz"/>
                                 </connections>
                             </button>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="n9X-lp-jrG">
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="n9X-lp-jrG">
                                 <rect key="frame" x="26" y="57" width="323" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="29" id="cYZ-dH-WrN"/>
@@ -73,7 +73,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="2000" translatesAutoresizingMaskIntoConstraints="NO" id="J7m-2u-kX1">
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.10000000000000001" maxValue="2000" translatesAutoresizingMaskIntoConstraints="NO" id="J7m-2u-kX1">
                                 <rect key="frame" x="26" y="189" width="323" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="29" id="NBR-f8-ZCR"/>
@@ -88,15 +88,23 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jI0-se-IrJ">
-                                <rect key="frame" x="128" y="518" width="30" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jI0-se-IrJ">
+                                <rect key="frame" x="128" y="518" width="36" height="30"/>
                                 <state key="normal" title="Play"/>
                                 <connections>
                                     <action selector="playButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fbY-x6-tRw"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleAspectFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IZ1-j6-MzB">
+                                <rect key="frame" x="150" y="200" width="74" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Sine"/>
+                                <connections>
+                                    <action selector="waveformButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oNL-aP-yJ0"/>
+                                </connections>
+                            </button>
                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3VZ-mp-CtV">
-                                <rect key="frame" x="14" y="250" width="344" height="210"/>
+                                <rect key="frame" x="15" y="301" width="344" height="200"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                         </subviews>
