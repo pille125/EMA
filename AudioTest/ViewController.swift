@@ -200,21 +200,24 @@ class ViewController: UIViewController {
 
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        amplitudeLabel.text = "Ampltude: \(value)"
+        let y = Double(round(100*value)/100)
+        amplitudeLabel.text = "Amplitude: \(y)"
         changeSoundAmplitude(amplitude: value)
     }
     
    
     @IBAction func frequnecyValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        frequencyLabel.text = "Frequency: \(value)"
+        let y = Double(round(100*value)/100)
+        frequencyLabel.text = "Frequency: \(y)"
         changeSoundFrequency(frequency: value)
     }
     
   
     @IBAction func rampTimeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        rampTimeLabel.text = "Ramp Time: \(value)"
+        let y = Double(round(100*value)/100)
+        rampTimeLabel.text = "Ramp Time: \(y)"
         changeSoundRampTime(rampTime: value)
         //oscillator.modulationIndex = value
     }
@@ -351,7 +354,9 @@ class ViewController: UIViewController {
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
+                    let tone = ToneData(tone: (x: f, y: a, z: r))
+                    toneData.append(tone)
+                    print("\(toneData.count) appended \(tone)")
                 }
             }
         case Status.Magnetometer:
