@@ -179,11 +179,10 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view, typically from a nib.
-        loadAudio(sine)
-        
         motionManager.startGyroUpdates()
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+        loadAudio(sine)
         setupPlot()
     }
     
