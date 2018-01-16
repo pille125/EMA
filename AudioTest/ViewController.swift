@@ -53,8 +53,10 @@ class ViewController: UIViewController {
     var timer: Timer!
     var valX = 0.00
     var valY = 0.00
+    var valZ = 0.00
     var maxValX = 0.00
     var maxValY = 0.00
+    var maxValZ = 0.00
     
     var wave = AKTable()
     
@@ -108,24 +110,20 @@ class ViewController: UIViewController {
     @IBAction func waveformButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
         case "Sine":
-            loadAudio(sine)
             sender.setTitle("Square", for: .normal)
-            print("Sine")
+            loadAudio(square)
             setupPlot()
         case "Square":
-            loadAudio(square)
             sender.setTitle("Triangle", for: .normal)
-            print("Square")
+            loadAudio(triangle)
             setupPlot()
         case "Triangle":
-            loadAudio(triangle)
             sender.setTitle("Sawtooh", for: .normal)
-            print("Triangle")
+            loadAudio(sawtooth)
             setupPlot()
         case "Sawtooh":
-            loadAudio(sawtooth)
             sender.setTitle("Sine", for: .normal)
-            print("Sawtooh")
+            loadAudio(sine)
             setupPlot()
         default:
             print("No waveforms!")
@@ -181,10 +179,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view, typically from a nib.
-        //oscillator = AKOscillator(waveform: square)
-        //loadAudio(sine)
+        loadAudio(sine)
         
-        //motionManager.startAccelerometerUpdates()
         motionManager.startGyroUpdates()
         
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
@@ -204,21 +200,21 @@ class ViewController: UIViewController {
 
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        amplitudeLabel.text = "\(value)"
+        amplitudeLabel.text = "Ampltude: \(value)"
         changeSoundAmplitude(amplitude: value)
     }
     
    
     @IBAction func frequnecyValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        frequencyLabel.text = "\(value)"
+        frequencyLabel.text = "Frequency: \(value)"
         changeSoundFrequency(frequency: value)
     }
     
   
     @IBAction func rampTimeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
-        rampTimeLabel.text = "\(value)"
+        rampTimeLabel.text = "Ramp Time: \(value)"
         changeSoundRampTime(rampTime: value)
         //oscillator.modulationIndex = value
     }
@@ -265,6 +261,7 @@ class ViewController: UIViewController {
             DispatchQueue.main.asyncAfter(deadline: when) {
                 self.changeSoundFrequency(frequency: tone.tone.x)
                 self.changeSoundAmplitude(amplitude: tone.tone.y)
+                self.changeSoundRampTime(rampTime: tone.tone.z)
             }
         }
     }
@@ -277,6 +274,7 @@ class ViewController: UIViewController {
                 //print("AccelorometerData: \(accelerometerData)")
                 valX = accelerometerData.acceleration.x
                 valY = accelerometerData.acceleration.y
+                valZ = accelerometerData.acceleration.z
                 
                 if (valX < 0) {
                     valX = valX * -1
@@ -290,6 +288,13 @@ class ViewController: UIViewController {
                 if (maxValY < valY) {
                     maxValY = valY
                 }
+                if (valZ < 0) {
+                    valZ = valZ * -1
+                }
+                if (maxValZ < valZ) {
+                    maxValZ = valZ
+                }
+                
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: f)
@@ -298,8 +303,12 @@ class ViewController: UIViewController {
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
+                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(a)")
+                changeSoundRampTime(rampTime: r)
+                
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
                 }
                 
             }
@@ -308,6 +317,7 @@ class ViewController: UIViewController {
                 //print("Gyrodata: \(gyroData)")
                 valX = gyroData.rotationRate.x
                 valY = gyroData.rotationRate.y
+                valZ = gyroData.rotationRate.z
                 
                 if (valX < 0) {
                     valX = valX * -1
@@ -321,6 +331,13 @@ class ViewController: UIViewController {
                 if (maxValY < valY) {
                     maxValY = valY
                 }
+                if (valZ < 0) {
+                    valZ = valZ * -1
+                }
+                if (maxValZ < valZ) {
+                    maxValZ = valZ
+                }
+                
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: f)
@@ -329,8 +346,12 @@ class ViewController: UIViewController {
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
+                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(a)")
+                changeSoundRampTime(rampTime: r)
+                
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
                 }
             }
         case Status.Magnetometer:
@@ -338,6 +359,7 @@ class ViewController: UIViewController {
                 //print("MagnetoData: \(magnetometerData)")
                 valX = magnetometerData.magneticField.x
                 valY = magnetometerData.magneticField.y
+                valZ = magnetometerData.magneticField.z
                 
                 if (valX < 0) {
                     valX = valX * -1
@@ -351,6 +373,13 @@ class ViewController: UIViewController {
                 if (maxValY < valY) {
                     maxValY = valY
                 }
+                if (valZ < 0) {
+                    valZ = valZ * -1
+                }
+                if (maxValZ < valZ) {
+                    maxValZ = valZ
+                }
+                
                 let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
                 changeSoundFrequency(frequency: valX*10)
@@ -359,8 +388,12 @@ class ViewController: UIViewController {
                 print("mapped Amplitude: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
+                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(a)")
+                changeSoundRampTime(rampTime: r)
+                
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: 0.0)))
+                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
                 }
             }
         }
