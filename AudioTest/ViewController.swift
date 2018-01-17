@@ -27,7 +27,7 @@ extension Double {
     }
 }
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
     enum Status: String {
         case Gyroskop = "Gyroskop"
@@ -59,13 +59,19 @@ class ViewController: UIViewController {
     var maxValZ = 0.00
     
     var wave = AKTable()
-    
+    var effect = AKReverb()
     var amp = 0.5
     var freq = 100.0
     var ramp = 0.0
     
-    var status = Status.Gyroskop
+   
+    let effectList = ["Cathedral", "Large Hall", "Large Hall 2",
+                   "Large Room", "Large Room 2", "Medium Chamber",
+                   "Medium Hall", "Medium Hall 2", "Medium Hall 3",
+                   "Medium Room", "Plate", "Small Room"]
     
+    var status = Status.Gyroskop
+   
     @IBOutlet weak var audioPlot: UIView!
     @IBOutlet weak var amplitudeLabel: UILabel!
     @IBOutlet weak var amplitudeSlider: UISlider!
@@ -73,6 +79,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var frequencySlider: UISlider!
     @IBOutlet weak var rampTimeLabel: UILabel!
     @IBOutlet weak var rampTimeSlider: UISlider!
+    @IBOutlet weak var textBoxEffect: UITextField!
+    @IBOutlet weak var dropDownEffect: UIPickerView!
     
     @IBAction func recordButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
@@ -106,6 +114,59 @@ class ViewController: UIViewController {
             print("unknown")
         }
     }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        view.endEditing(true)
+        return effectList[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return effectList.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        switch effectList[row] {
+        case "Cathedral":
+            effect.loadFactoryPreset(.cathedral)
+        case "Large Hall":
+            effect.loadFactoryPreset(.largeHall)
+        case "Large Hall 2":
+            effect.loadFactoryPreset(.largeHall2)
+        case "Large Room":
+            effect.loadFactoryPreset(.largeRoom)
+        case "Large Room 2":
+            effect.loadFactoryPreset(.largeRoom2)
+        case "Medium Chamber":
+            effect.loadFactoryPreset(.mediumChamber)
+        case "Medium Hall":
+            effect.loadFactoryPreset(.mediumHall)
+        case "Medium Hall 2":
+            effect.loadFactoryPreset(.mediumHall2)
+        case "Medium Hall 3":
+            effect.loadFactoryPreset(.mediumHall3)
+        case "Medium Room":
+            effect.loadFactoryPreset(.mediumRoom)
+        case "Plate":
+            effect.loadFactoryPreset(.plate)
+        case "Small Room":
+            effect.loadFactoryPreset(.smallRoom)
+        default:
+            break
+        }
+        textBoxEffect.text = effectList[row]
+        dropDownEffect.isHidden = true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField  == textBoxEffect {
+            dropDownEffect.isHidden = false
+        }
+    }
+
     
     @IBAction func waveformButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
@@ -167,7 +228,11 @@ class ViewController: UIViewController {
         oscillator.stop()
         AudioKit.stop()
         oscillator = AKOscillator(waveform: wave)
-        AudioKit.output = oscillator
+        
+        effect = AKReverb(oscillator)
+        effect.dryWetMix = 1.0
+
+        AudioKit.output = effect
         AudioKit.start()
         oscillator.start()
         changeSoundAmplitude(amplitude: amp)
@@ -194,6 +259,7 @@ class ViewController: UIViewController {
         plot.shouldCenterYAxis = true
         plot.color = UIColor.blue
         audioPlot.addSubview(plot)
+        
     }
     
 
