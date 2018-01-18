@@ -27,6 +27,15 @@ extension Double {
     }
 }
 
+extension UIButton {
+    func setTitleWithoutAnimation(title: String?) {
+        UIView.setAnimationsEnabled(false)
+        setTitle(title, for: .normal)
+        layoutIfNeeded()
+        UIView.setAnimationsEnabled(true)
+    }
+}
+
 class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
     enum Status: String {
@@ -64,14 +73,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var freq = 100.0
     var ramp = 0.0
     
-   
     let effectList = ["Cathedral", "Large Hall", "Large Hall 2",
                    "Large Room", "Large Room 2", "Medium Chamber",
                    "Medium Hall", "Medium Hall 2", "Medium Hall 3",
                    "Medium Room", "Plate", "Small Room"]
     
     var status = Status.Gyroskop
-   
+    @IBOutlet weak var effectButton: UIButton!
     @IBOutlet weak var audioPlot: UIView!
     @IBOutlet weak var amplitudeLabel: UILabel!
     @IBOutlet weak var amplitudeSlider: UISlider!
@@ -82,16 +90,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet weak var textBoxEffect: UITextField!
     @IBOutlet weak var dropDownEffect: UIPickerView!
     
+  
     @IBAction func recordButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
         case "Record":
             record = true
             toneData.removeAll()
-            sender.setTitle("Stop Record", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Stop Record")
             print("started recording")
         case "Stop Record":
             record = false
-            sender.setTitle("Record", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Record")
             print("Stopped recording, record time: \(toneData.count * 0.5) seconds")
         default:
             print("Unknown")
@@ -104,12 +113,12 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if record == false && toneData.count > 0 {
                 timer.invalidate()
                 playRecord()
-                sender.setTitle("Stop", for: .normal)
+                sender.setTitleWithoutAnimation(title:"Stop")
             }
         
         case "Stop":
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
-            sender.setTitle("Play", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Play")
         default:
             print("unknown")
         }
@@ -157,7 +166,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         default:
             break
         }
-        textBoxEffect.text = effectList[row]
+        
+        effectButton.setTitleWithoutAnimation(title: effectList[row])
         dropDownEffect.isHidden = true
     }
     
@@ -166,24 +176,28 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             dropDownEffect.isHidden = false
         }
     }
+  
+    @IBAction func effectButon(_ sender: UIButton) {
+       
+        dropDownEffect.isHidden = false
+    }
 
-    
     @IBAction func waveformButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
         case "Sine":
-            sender.setTitle("Square", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Square")
             loadAudio(square)
             setupPlot()
         case "Square":
-            sender.setTitle("Triangle", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Triangle")
             loadAudio(triangle)
             setupPlot()
         case "Triangle":
-            sender.setTitle("Sawtooh", for: .normal)
+            sender.setTitleWithoutAnimation(title: "Sawtooh")
             loadAudio(sawtooth)
             setupPlot()
         case "Sawtooh":
-            sender.setTitle("Sine", for: .normal)
+            sender.setTitleWithoutAnimation( title:"Sine")
             loadAudio(sine)
             setupPlot()
         default:
@@ -196,7 +210,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         switch sender.title(for: .normal)! {
             case "Gyroskop":
                 print("gyro")
-                sender.setTitle("Accelerometer", for: .normal)
+                sender.setTitleWithoutAnimation(title: "Accelerometer")
                 motionManager.stopGyroUpdates()
                 motionManager.startAccelerometerUpdates()
                 status = Status.Accelerometer
@@ -204,7 +218,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 maxValY = 0.00
             case "Accelerometer":
                 print("accelerometer")
-                sender.setTitle("Magnetometer", for: .normal)
+                sender.setTitleWithoutAnimation(title:"Magnetometer")
                 motionManager.stopAccelerometerUpdates()
                 motionManager.startMagnetometerUpdates()
                 status = Status.Magnetometer
@@ -212,7 +226,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 maxValY = 0.00
             case "Magnetometer":
                 print("Magnetometer")
-                sender.setTitle("Gyroskop", for: .normal)
+                sender.setTitleWithoutAnimation(title:"Gyroskop")
                 motionManager.stopMagnetometerUpdates()
                 motionManager.startGyroUpdates()
                 status = Status.Gyroskop
@@ -222,7 +236,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 print("Unknown")
         }
     }
-    
     
     func loadAudio(_ wave: AKTable) {
         oscillator.stop()
@@ -252,17 +265,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     func setupPlot() {
-        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 280, height: 200))
+        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 344, height: 200))
         plot.plotType = .rolling
-        //plot.shouldFill = true
-        //plot.shouldMirror = true
         plot.shouldCenterYAxis = true
         plot.color = UIColor.blue
         audioPlot.addSubview(plot)
         
     }
     
-
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         let y = Double(round(100*value)/100)
@@ -270,7 +280,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         changeSoundAmplitude(amplitude: value)
     }
     
-   
     @IBAction func frequnecyValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         let y = Double(round(100*value)/100)
@@ -278,7 +287,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         changeSoundFrequency(frequency: value)
     }
     
-  
     @IBAction func rampTimeValueChange(_ sender: UISlider) {
         let value = Double(sender.value)
         let y = Double(round(100*value)/100)
@@ -309,7 +317,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }else {
             print("Amplitude to High")
         }
-        
     }
     
     func changeSoundRampTime(rampTime: Double) {
@@ -378,8 +385,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 if record == true {
                     toneData.append(ToneData(tone: (x: f, y: a, z: r)))
                 }
-                
             }
+            
         case Status.Gyroskop:
             if let gyroData = motionManager.gyroData {
                 //print("Gyrodata: \(gyroData)")
@@ -424,6 +431,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     print("\(toneData.count) appended \(tone)")
                 }
             }
+            
         case Status.Magnetometer:
             if let magnetometerData = motionManager.magnetometerData {
                 //print("MagnetoData: \(magnetometerData)")
