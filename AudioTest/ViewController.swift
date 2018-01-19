@@ -56,6 +56,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     let maxFrequency = 2000.0
     let maxAmplitude = 1.0
     let maxRampTime = 5.0
+    let maxEffect = 1.0
     var toneData = [ToneData]()
     var record:Bool = false
     
@@ -72,6 +73,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var amp = 0.5
     var freq = 100.0
     var ramp = 0.0
+    var eff = 0.0
     
     let effectList = ["Cathedral", "Large Hall", "Large Hall 2",
                    "Large Room", "Large Room 2", "Medium Chamber",
@@ -87,6 +89,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet weak var frequencySlider: UISlider!
     @IBOutlet weak var rampTimeLabel: UILabel!
     @IBOutlet weak var rampTimeSlider: UISlider!
+    @IBOutlet weak var effectMixLabel: UILabel!
     @IBOutlet weak var textBoxEffect: UITextField!
     @IBOutlet weak var dropDownEffect: UIPickerView!
     
@@ -166,7 +169,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         default:
             break
         }
-        
         effectButton.setTitleWithoutAnimation(title: effectList[row])
         dropDownEffect.isHidden = true
     }
@@ -178,8 +180,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
   
     @IBAction func effectButon(_ sender: UIButton) {
-       
+        if sender.titleLabel == effectButton.titleLabel {
         dropDownEffect.isHidden = false
+        }
     }
 
     @IBAction func waveformButton(_ sender: UIButton) {
@@ -241,10 +244,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         oscillator.stop()
         AudioKit.stop()
         oscillator = AKOscillator(waveform: wave)
-        
         effect = AKReverb(oscillator)
-        effect.dryWetMix = 1.0
-
+        effect.dryWetMix = 0.0
         AudioKit.output = effect
         AudioKit.start()
         oscillator.start()
@@ -265,12 +266,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     }
     
     func setupPlot() {
-        let plot = AKNodeOutputPlot(oscillator, frame:  CGRect(x: 0, y: 0, width: 344, height: 200))
+        let plot = AKNodeOutputPlot(oscillator, frame: audioPlot.bounds)
         plot.plotType = .rolling
         plot.shouldCenterYAxis = true
         plot.color = UIColor.blue
         audioPlot.addSubview(plot)
-        
     }
     
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
@@ -295,6 +295,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         //oscillator.modulationIndex = value
     }
     
+    @IBAction func effectMixValueChange(_ sender: UISlider) {
+        let value = Double(sender.value)
+        let y = Double(round(100*value)/100)
+        effectMixLabel.text = "Mix: \(y)"
+        changeEffectMix(mix: value)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -303,7 +310,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     func changeSoundFrequency(frequency: Double) {
         if (frequency <= maxFrequency) {
             oscillator.frequency = frequency
-             freq = frequency
+            freq = frequency
             //oscillator.baseFrequency = frequency
         }else {
             print("Frequency to High")
@@ -325,6 +332,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             ramp = rampTime
         }else {
             print("Ramp Time to High")
+        }
+    }
+    
+    func changeEffectMix(mix: Double) {
+        if (mix <= maxEffect) {
+            effect.dryWetMix = mix
+            eff = mix
+        }else {
+            print("Effect error")
         }
     }
 
