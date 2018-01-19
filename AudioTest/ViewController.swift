@@ -7,12 +7,9 @@
 //
 
 import UIKit
-
 import AudioKit
 import AudioKitUI
 import CoreMotion
-import AudioKitUI
-
 
 extension CGFloat {
     func map(from: ClosedRange<CGFloat>, to: ClosedRange<CGFloat>) -> CGFloat {
@@ -74,11 +71,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var freq = 100.0
     var ramp = 0.0
     var eff = 0.0
+    var valAmp = 1.0
+    var valFreq = 1.0
+    var valRamp = 1.0
     
     let effectList = ["Cathedral", "Large Hall", "Large Hall 2",
-                   "Large Room", "Large Room 2", "Medium Chamber",
-                   "Medium Hall", "Medium Hall 2", "Medium Hall 3",
-                   "Medium Room", "Plate", "Small Room"]
+                      "Large Room", "Large Room 2", "Medium Chamber",
+                      "Medium Hall", "Medium Hall 2", "Medium Hall 3",
+                      "Medium Room", "Plate", "Small Room"]
     
     var status = Status.Gyroskop
     @IBOutlet weak var effectButton: UIButton!
@@ -93,7 +93,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet weak var textBoxEffect: UITextField!
     @IBOutlet weak var dropDownEffect: UIPickerView!
     
-  
+    
     @IBAction func recordButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
         case "Record":
@@ -118,7 +118,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 playRecord()
                 sender.setTitleWithoutAnimation(title:"Stop")
             }
-        
+            
         case "Stop":
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
             sender.setTitleWithoutAnimation(title: "Play")
@@ -178,65 +178,69 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             dropDownEffect.isHidden = false
         }
     }
-  
+    
     @IBAction func effectButon(_ sender: UIButton) {
         if sender.titleLabel == effectButton.titleLabel {
-        dropDownEffect.isHidden = false
+            dropDownEffect.isHidden = false
         }
     }
-
+    
     @IBAction func waveformButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
         case "Sine":
             sender.setTitleWithoutAnimation(title: "Square")
             loadAudio(square)
+            removeSubview()
             setupPlot()
         case "Square":
             sender.setTitleWithoutAnimation(title: "Triangle")
             loadAudio(triangle)
+            removeSubview()
             setupPlot()
         case "Triangle":
             sender.setTitleWithoutAnimation(title: "Sawtooh")
             loadAudio(sawtooth)
+            removeSubview()
             setupPlot()
         case "Sawtooh":
             sender.setTitleWithoutAnimation( title:"Sine")
             loadAudio(sine)
+            removeSubview()
             setupPlot()
         default:
             print("No waveforms!")
         }
     }
-  
+    
     //Loop through the different sensors bei pressing the button
     @IBAction func modeButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
-            case "Gyroskop":
-                print("gyro")
-                sender.setTitleWithoutAnimation(title: "Accelerometer")
-                motionManager.stopGyroUpdates()
-                motionManager.startAccelerometerUpdates()
-                status = Status.Accelerometer
-                maxValX = 0.00
-                maxValY = 0.00
-            case "Accelerometer":
-                print("accelerometer")
-                sender.setTitleWithoutAnimation(title:"Magnetometer")
-                motionManager.stopAccelerometerUpdates()
-                motionManager.startMagnetometerUpdates()
-                status = Status.Magnetometer
-                maxValX = 0.00
-                maxValY = 0.00
-            case "Magnetometer":
-                print("Magnetometer")
-                sender.setTitleWithoutAnimation(title:"Gyroskop")
-                motionManager.stopMagnetometerUpdates()
-                motionManager.startGyroUpdates()
-                status = Status.Gyroskop
-                maxValX = 0.00
-                maxValY = 0.00
-            default:
-                print("Unknown")
+        case "Gyroskop":
+            print("gyro")
+            sender.setTitleWithoutAnimation(title: "Accelerometer")
+            motionManager.stopGyroUpdates()
+            motionManager.startAccelerometerUpdates()
+            status = Status.Accelerometer
+            maxValX = 0.00
+            maxValY = 0.00
+        case "Accelerometer":
+            print("accelerometer")
+            sender.setTitleWithoutAnimation(title:"Magnetometer")
+            motionManager.stopAccelerometerUpdates()
+            motionManager.startMagnetometerUpdates()
+            status = Status.Magnetometer
+            maxValX = 0.00
+            maxValY = 0.00
+        case "Magnetometer":
+            print("Magnetometer")
+            sender.setTitleWithoutAnimation(title:"Gyroskop")
+            motionManager.stopMagnetometerUpdates()
+            motionManager.startGyroUpdates()
+            status = Status.Gyroskop
+            maxValX = 0.00
+            maxValY = 0.00
+        default:
+            print("Unknown")
         }
     }
     
@@ -259,7 +263,6 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         // Do any additional setup after loading the view, typically from a nib.
         motionManager.startGyroUpdates()
-        
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         loadAudio(sine)
         setupPlot()
@@ -267,32 +270,41 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     func setupPlot() {
         let plot = AKNodeOutputPlot(oscillator, frame: audioPlot.bounds)
-        plot.plotType = .rolling
+        plot.clear()
+        plot.tag = 1
+        plot.plotType = .buffer
         plot.shouldCenterYAxis = true
-        plot.color = UIColor.blue
+        plot.color = .blue
+        plot.backgroundColor = .clear
+        plot.gain = 1.5
         audioPlot.addSubview(plot)
     }
     
+    func removeSubview(){
+        print("Start remove subview")
+        if let viewWithTag = view.viewWithTag(1) {
+            viewWithTag.removeFromSuperview()
+        }else{
+            print("No!")
+        }
+    }
+    
     @IBAction func amplitudeValueChange(_ sender: UISlider) {
-        let value = Double(sender.value)
-        let y = Double(round(100*value)/100)
-        amplitudeLabel.text = "Amplitude: \(y)"
-        changeSoundAmplitude(amplitude: value)
+        valAmp = Double(sender.value)
+        let y = Double(round(100*valAmp)/100)
+        amplitudeLabel.text = "Amplitude Factor: \(y)"
     }
     
     @IBAction func frequnecyValueChange(_ sender: UISlider) {
-        let value = Double(sender.value)
-        let y = Double(round(100*value)/100)
-        frequencyLabel.text = "Frequency: \(y)"
-        changeSoundFrequency(frequency: value)
+        valFreq = Double(sender.value)
+        let y = Double(round(100*valFreq)/100)
+        frequencyLabel.text = "Frequency Factor: \(y)"
     }
     
     @IBAction func rampTimeValueChange(_ sender: UISlider) {
-        let value = Double(sender.value)
-        let y = Double(round(100*value)/100)
-        rampTimeLabel.text = "Ramp Time: \(y)"
-        changeSoundRampTime(rampTime: value)
-        //oscillator.modulationIndex = value
+        valRamp = Double(sender.value)
+        let y = Double(round(100*valRamp)/100)
+        rampTimeLabel.text = "Ramp Time Factor: \(y)"
     }
     
     @IBAction func effectMixValueChange(_ sender: UISlider) {
@@ -311,9 +323,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if (frequency <= maxFrequency) {
             oscillator.frequency = frequency
             freq = frequency
-            //oscillator.baseFrequency = frequency
         }else {
             print("Frequency to High")
+            oscillator.frequency = maxFrequency
+            freq = maxFrequency
         }
     }
     
@@ -323,6 +336,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             amp = amplitude
         }else {
             print("Amplitude to High")
+            oscillator.amplitude = maxAmplitude
+            amp = maxAmplitude
         }
     }
     
@@ -332,6 +347,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             ramp = rampTime
         }else {
             print("Ramp Time to High")
+            oscillator.rampTime = maxRampTime
+            ramp = maxRampTime
         }
     }
     
@@ -343,7 +360,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             print("Effect error")
         }
     }
-
+    
     func playRecord() {
         var time = 0.0
         for tone in toneData {
@@ -386,16 +403,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     maxValZ = valZ
                 }
                 
-                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
+                var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
+                f = f * valAmp
+                print("newFreq: \(f)")
                 changeSoundFrequency(frequency: f)
                 
-                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
+                var a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
+                a = a * valAmp
+                print("newAmp: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
-                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
-                print("mapped Ramp Time: \(a)")
+                var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(r)")
+                r = r * valAmp
+                print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
@@ -429,16 +452,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     maxValZ = valZ
                 }
                 
-                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
+                var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
+                f = f * valAmp
+                print("newFreq: \(f)")
                 changeSoundFrequency(frequency: f)
                 
-                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
+                var a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
+                a = a * valAmp
+                print("newAmp: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
-                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
-                print("mapped Ramp Time: \(a)")
+                var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(r)")
+                r = r * valAmp
+                print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
@@ -474,16 +503,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                     maxValZ = valZ
                 }
                 
-                let f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
+                var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                changeSoundFrequency(frequency: valX*10)
+                f = f * valAmp
+                print("newFreq: \(f)")
+                changeSoundFrequency(frequency: f)
                 
-                let a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
+                var a = Double(valY).map(from: 0.0...CGFloat(maxValY), to: 0.0...CGFloat(maxAmplitude))
                 print("mapped Amplitude: \(a)")
+                a = a * valAmp
+                print("newAmp: \(a)")
                 changeSoundAmplitude(amplitude: a)
                 
-                let r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
-                print("mapped Ramp Time: \(a)")
+                var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
+                print("mapped Ramp Time: \(r)")
+                r = r * valAmp
+                print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
@@ -493,3 +528,4 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
 }
+
