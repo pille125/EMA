@@ -81,6 +81,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                       "Medium Room", "Plate", "Small Room"]
     
     var status = Status.Gyroskop
+    
     @IBOutlet weak var effectButton: UIButton!
     @IBOutlet weak var audioPlot: UIView!
     @IBOutlet weak var amplitudeLabel: UILabel!
@@ -263,7 +264,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         // Do any additional setup after loading the view, typically from a nib.
         motionManager.startGyroUpdates()
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
         loadAudio(sine)
         setupPlot()
     }
@@ -405,7 +406,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                f = f * valAmp
+                f = f * valFreq
                 print("newFreq: \(f)")
                 changeSoundFrequency(frequency: f)
                 
@@ -417,12 +418,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
                 print("mapped Ramp Time: \(r)")
-                r = r * valAmp
+                r = r * valRamp
                 print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
+                    let tone = ToneData(tone: (x: f, y: a, z: r))
+                    toneData.append(tone)
+                    print("\(toneData.count) appended \(tone)")
                 }
             }
             
@@ -454,7 +457,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                f = f * valAmp
+                f = f * valFreq
                 print("newFreq: \(f)")
                 changeSoundFrequency(frequency: f)
                 
@@ -466,7 +469,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
                 print("mapped Ramp Time: \(r)")
-                r = r * valAmp
+                r = r * valRamp
                 print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
@@ -505,7 +508,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var f = Double(valX).map(from: 0.0...CGFloat(maxValX), to: 20.0...CGFloat(maxFrequency))
                 print("mapped Frequency: \(f)")
-                f = f * valAmp
+                f = f * valFreq
                 print("newFreq: \(f)")
                 changeSoundFrequency(frequency: f)
                 
@@ -517,12 +520,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 
                 var r = Double(valZ).map(from: 0.0...CGFloat(maxValZ), to: 0.0...CGFloat(maxRampTime))
                 print("mapped Ramp Time: \(r)")
-                r = r * valAmp
+                r = r * valRamp
                 print("newRamp: \(r)")
                 changeSoundRampTime(rampTime: r)
                 
                 if record == true {
-                    toneData.append(ToneData(tone: (x: f, y: a, z: r)))
+                    let tone = ToneData(tone: (x: f, y: a, z: r))
+                    toneData.append(tone)
+                    print("\(toneData.count) appended \(tone)")
                 }
             }
         }
