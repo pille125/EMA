@@ -59,7 +59,7 @@
                                 <rect key="frame" x="170" y="492" width="150" height="77"/>
                                 <color key="backgroundColor" red="0.2318284706" green="0.82308533029999997" blue="0.29151782170000001" alpha="0.43117297539999999" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="24"/>
-                                <state key="normal" title="Sine">
+                                <state key="normal" title="Start">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
@@ -142,7 +142,7 @@
                                     <constraint firstAttribute="height" constant="29" id="dWR-Dp-S0T"/>
                                 </constraints>
                                 <connections>
-                                    <action selector="amplitudeValueChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="pVo-UT-4Kq"/>
+                                    <action selector="amplitudeValueChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="uPs-UW-yE9"/>
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mix" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ElT-AX-k3H">
@@ -221,6 +221,7 @@
                         <outlet property="frequencySlider" destination="J7m-2u-kX1" id="lHa-6e-3us"/>
                         <outlet property="rampTimeLabel" destination="kOo-fI-36o" id="6Tp-bc-wYn"/>
                         <outlet property="rampTimeSlider" destination="knU-6W-f4u" id="1SU-d4-GUU"/>
+                        <outlet property="waveFormButton" destination="o9G-bz-uIC" id="dMP-A2-96S"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

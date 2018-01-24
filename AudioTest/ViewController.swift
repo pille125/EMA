@@ -44,9 +44,10 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var oscillator = AKOscillator()
     //let oscillator = AKFMOscillator()
     
-    let triangle = AKTable(.triangle, count: 256)
+    let triangle = AKTable(.positiveTriangle, count: 256)
     let square = AKTable(.square, count: 256)
-    let sawtooth = AKTable(.sawtooth, count: 256)
+    let sawtooth = AKTable(.positiveSawtooth, count: 256)
+    let revertSawtooth = AKTable(.positiveReverseSawtooth , count: 256)
     let sine = AKTable(.sine, count: 256)
     
     let motionManager = CMMotionManager()
@@ -74,14 +75,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var valAmp = 1.0
     var valFreq = 1.0
     var valRamp = 1.0
+    var status = Status.Gyroskop
     
     let effectList = ["Cathedral", "Large Hall", "Large Hall 2",
                       "Large Room", "Large Room 2", "Medium Chamber",
                       "Medium Hall", "Medium Hall 2", "Medium Hall 3",
                       "Medium Room", "Plate", "Small Room"]
     
-    var status = Status.Gyroskop
-    
+    @IBOutlet weak var waveFormButton: UIButton!
     @IBOutlet weak var effectButton: UIButton!
     @IBOutlet weak var audioPlot: UIView!
     @IBOutlet weak var amplitudeLabel: UILabel!
@@ -101,7 +102,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             record = true
             toneData.removeAll()
             sender.setTitleWithoutAnimation(title: "Stop Record")
-            print("started recording")
+            print("Started recording")
         case "Stop Record":
             record = false
             sender.setTitleWithoutAnimation(title: "Record")
@@ -117,14 +118,14 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             if record == false && toneData.count > 0 {
                 timer.invalidate()
                 oscillator.stop()
-                
                 playRecord()
                 sender.setTitleWithoutAnimation(title:"Stop")
+                waveFormButton.setTitleWithoutAnimation(title: "End")
             }
-            
         case "Stop":
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
             sender.setTitleWithoutAnimation(title: "Play")
+            waveFormButton.setTitleWithoutAnimation(title: "Start")
             oscillator.start()
         default:
             print("unknown")
@@ -191,26 +192,47 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     @IBAction func waveformButton(_ sender: UIButton) {
         switch sender.title(for: .normal)! {
+        case "Start":
+            sender.setTitleWithoutAnimation(title: "Sine")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
+            loadAudio(sine)
+            setupPlot()
         case "Sine":
             sender.setTitleWithoutAnimation(title: "Square")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
             loadAudio(square)
-            removeSubview()
             setupPlot()
         case "Square":
             sender.setTitleWithoutAnimation(title: "Triangle")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
             loadAudio(triangle)
-            removeSubview()
             setupPlot()
         case "Triangle":
             sender.setTitleWithoutAnimation(title: "Sawtooh")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
             loadAudio(sawtooth)
-            removeSubview()
             setupPlot()
         case "Sawtooh":
-            sender.setTitleWithoutAnimation( title:"Sine")
-            loadAudio(sine)
-            removeSubview()
+            sender.setTitleWithoutAnimation( title:"RevSawtooh")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
+            loadAudio(revertSawtooth)
             setupPlot()
+        case "RevSawtooh":
+            sender.setTitleWithoutAnimation( title:"Start")
+            if view.viewWithTag(1) != nil {
+                removeSubview()
+            }
+            oscillator.stop()
         default:
             print("No waveforms!")
         }
@@ -268,19 +290,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         // Do any additional setup after loading the view, typically from a nib.
         motionManager.startGyroUpdates()
         timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
-        loadAudio(sine)
-        setupPlot()
     }
     
     func setupPlot() {
         let plot = AKNodeOutputPlot(oscillator, frame: audioPlot.bounds)
-        plot.clear()
         plot.tag = 1
         plot.plotType = .buffer
         plot.shouldCenterYAxis = true
         plot.color = .blue
         plot.backgroundColor = .clear
-        plot.gain = 1.5
+        plot.gain = 0.5
         audioPlot.addSubview(plot)
     }
     
@@ -289,7 +308,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         if let viewWithTag = view.viewWithTag(1) {
             viewWithTag.removeFromSuperview()
         }else{
-            print("No!")
+            print("No View To Remove!")
         }
     }
     
@@ -328,7 +347,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             oscillator.frequency = frequency
             freq = frequency
         }else {
-            print("Frequency to High")
+            print("Frequency to High, set to maxFrequency")
             oscillator.frequency = maxFrequency
             freq = maxFrequency
         }
@@ -339,7 +358,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             oscillator.amplitude = amplitude
             amp = amplitude
         }else {
-            print("Amplitude to High")
+            print("Amplitude to High, set to maxAmplitude")
             oscillator.amplitude = maxAmplitude
             amp = maxAmplitude
         }
@@ -350,9 +369,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             oscillator.rampTime = rampTime
             ramp = rampTime
         }else {
-            print("Ramp Time to High")
+            print("Ramp Time to High, set to maxRamp")
             oscillator.rampTime = maxRampTime
             ramp = maxRampTime
+        }
+    }
+    
+    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+            completion()
         }
     }
     
@@ -361,7 +386,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             effect.dryWetMix = mix
             eff = mix
         }else {
-            print("Effect error")
+            print("Effect Error")
         }
     }
     
