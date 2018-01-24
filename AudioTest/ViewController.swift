@@ -116,6 +116,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         case "Play":
             if record == false && toneData.count > 0 {
                 timer.invalidate()
+                oscillator.stop()
+                
                 playRecord()
                 sender.setTitleWithoutAnimation(title:"Stop")
             }
@@ -123,6 +125,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         case "Stop":
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
             sender.setTitleWithoutAnimation(title: "Play")
+            oscillator.start()
         default:
             print("unknown")
         }
