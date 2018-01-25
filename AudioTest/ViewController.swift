@@ -116,8 +116,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         switch sender.title(for: .normal)! {
         case "Play":
             if record == false && toneData.count > 0 {
-                timer.invalidate()
                 oscillator.stop()
+                timer.invalidate()
+                oscillator.start()
                 playRecord()
                 sender.setTitleWithoutAnimation(title:"Stop")
                 waveFormButton.setTitleWithoutAnimation(title: "End")
@@ -126,7 +127,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(ViewController.update), userInfo: nil, repeats: true)
             sender.setTitleWithoutAnimation(title: "Play")
             waveFormButton.setTitleWithoutAnimation(title: "Start")
-            oscillator.start()
+            oscillator.stop()
         default:
             print("unknown")
         }
@@ -282,6 +283,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         changeSoundAmplitude(amplitude: amp)
         changeSoundFrequency(frequency: freq)
         changeSoundRampTime(rampTime: ramp)
+        changeEffectMix(mix: eff)
     }
     
     override func viewDidLoad() {
@@ -375,18 +377,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         }
     }
     
-    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-            completion()
-        }
-    }
-    
     func changeEffectMix(mix: Double) {
         if (mix <= maxEffect) {
             effect.dryWetMix = mix
             eff = mix
         }else {
             print("Effect Error")
+        }
+    }
+    
+    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+            completion()
         }
     }
     
